@@ -89,82 +89,122 @@ textarea { width: 100%; height: 90px; font: 400 12px var(--font-mono); backgroun
 .zone .bar { height: 6px; border-radius: 3px; background: var(--line); margin-top: 6px; overflow: hidden; }
 .zone .bar i { display: block; height: 100%; width: 0; background: var(--zc); transition: width .4s linear; }
 .zone .t { display: block; font: 600 13px var(--font-display); font-variant-numeric: tabular-nums; color: var(--ink); margin-top: 4px; }
+
+[hidden] { display: none !important; }
+.view { display: grid; gap: 14px; }
+button.wide { width: 100%; min-height: 48px; font-size: 17px; }
+.topbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 12px; font-size: 14px; background: var(--panel); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; }
+.chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.chip.on { color: var(--ink); } .chip.on i { background: var(--ok); }
+.topbar .rec { margin-left: auto; }
+.metrics.primary { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.metrics.primary .metric { padding: 10px 10px 12px; }
+.metrics.primary .metric .v { font-size: 44px; }
+.metrics.primary .metric .u { margin-left: 3px; font-size: 13px; }
+.metrics.secondary { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.metrics.secondary .metric { padding: 8px 10px 10px; }
+.metrics.secondary .metric .v { font-size: 26px; margin-top: 4px; }
+.metrics.secondary .metric .u { font-size: 12px; margin-left: 3px; }
+.metrics.secondary .metric .k { font-size: 11px; letter-spacing: .08em; }
+@media (min-width: 640px) {
+  .metrics.primary .metric .v { font-size: 64px; }
+  .metrics.secondary .metric .v { font-size: 34px; }
+}
+#viewTreino { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; gap: 8px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--panel); border-top: 1px solid var(--line); }
+.dock button { flex: 1 1 0; min-width: 0; padding-inline: 8px; }
 </style>
 
 </head>
 <body>
 <main>
-  <header>
-    <div>
-      <h1>Painel Spinning</h1>
-      <p class="sub">Bicicleta Gallant Connect Max e cinta cardíaca, direto pelo Bluetooth.</p>
-    </div>
-  </header>
-
-  <div class="panel warn" id="aviso" hidden>
-    <b>Este navegador não liberou o Bluetooth.</b>
-    <p class="hint" id="avisoTxt"></p>
-  </div>
-
-  <section class="panel" aria-label="Dispositivos">
-    <h2>Dispositivos</h2>
-    <div class="devices">
-      <div class="dev">
-        <div class="row"><b>Bicicleta</b><span class="state" id="stBike">desconectada</span></div>
-        <button id="btnBike" type="button">Conectar bicicleta</button>
+  <section id="viewConectar" class="view">
+    <header>
+      <div>
+        <h1>Painel Spinning</h1>
+        <p class="sub">Bicicleta Gallant Connect Max e cinta cardíaca, direto pelo Bluetooth.</p>
       </div>
-      <div class="dev">
-        <div class="row"><b>Cinta cardíaca</b><span class="state" id="stHr">desconectada</span></div>
-        <button id="btnHr" type="button">Conectar cinta</button>
-      </div>
+    </header>
+
+    <div class="panel warn" id="aviso" hidden>
+      <b>Este navegador não liberou o Bluetooth.</b>
+      <p class="hint" id="avisoTxt"></p>
     </div>
+
+    <section class="panel" aria-label="Dispositivos">
+      <h2>Dispositivos</h2>
+      <div class="devices">
+        <div class="dev">
+          <div class="row"><b>Bicicleta</b><span class="state" id="stBike">desconectada</span></div>
+          <button id="btnBike" type="button">Conectar bicicleta</button>
+        </div>
+        <div class="dev">
+          <div class="row"><b>Cinta cardíaca</b><span class="state" id="stHr">desconectada</span></div>
+          <button id="btnHr" type="button">Conectar cinta</button>
+        </div>
+      </div>
+    </section>
+
+    <button id="btnGo" type="button" class="wide ghost">Ir para o treino</button>
+    <p class="hint" id="goHint">Conecte a bicicleta e a cinta. Quando as duas estiverem conectadas, o painel abre sozinho.</p>
   </section>
 
-  <section class="panel" aria-label="Treino">
-    <h2>Treino</h2>
-    <div class="actions">
-      <button id="btnStart" type="button">Iniciar treino</button>
-      <button id="btnPause" type="button" class="ghost" disabled>Pausar</button>
-      <button id="btnFinish" type="button" class="danger" disabled>Finalizar e salvar</button>
+  <section id="viewTreino" class="view" hidden>
+    <div class="topbar">
+      <button type="button" class="chip" id="chipBike"><i></i>Bicicleta</button>
+      <button type="button" class="chip" id="chipHr"><i></i>Cinta</button>
+      <button type="button" class="ghost small" id="btnDev">Dispositivos</button>
       <span class="rec" id="recState">Parado</span>
     </div>
-    <p class="hint" style="margin-top:10px">Tempo, calorias e distância só contam depois de iniciar. Os números grandes abaixo mostram sempre o que a bicicleta envia agora.</p>
-  </section>
 
-  <section class="metrics" aria-label="Métricas ao vivo">
-    <div class="metric main"><div class="k">Potência</div><div><span class="v" id="mPower">--</span><span class="u">W</span></div></div>
-    <div class="metric"><div class="k">Cadência</div><div><span class="v" id="mCad">--</span><span class="u">rpm</span></div></div>
-    <div class="metric"><div class="k">Resistência</div><div><span class="v" id="mRes">--</span><span class="u">nível</span></div></div>
-    <div class="metric hr"><div class="k">Batimentos</div><div><span class="v" id="mHr">--</span><span class="u">bpm</span></div></div>
-    <div class="metric"><div class="k">Calorias</div><div><span class="v" id="mKcal">0</span><span class="u">kcal</span></div></div>
-    <div class="metric"><div class="k">Tempo</div><div><span class="v" id="mTime">00:00</span></div></div>
-    <div class="metric"><div class="k">Velocidade</div><div><span class="v" id="mSpd">--</span><span class="u">km/h</span></div></div>
-    <div class="metric"><div class="k">Distância</div><div><span class="v" id="mDist">0,00</span><span class="u">km</span></div></div>
-  </section>
+    <section class="metrics primary" aria-label="Métricas principais">
+      <div class="metric main"><div class="k">Potência</div><div><span class="v" id="mPower">--</span><span class="u">W</span></div></div>
+      <div class="metric"><div class="k">Cadência</div><div><span class="v" id="mCad">--</span><span class="u">rpm</span></div></div>
+      <div class="metric hr"><div class="k">Batimentos</div><div><span class="v" id="mHr">--</span><span class="u">bpm</span></div></div>
+    </section>
 
-  <section class="panel" aria-label="Gráfico e zonas">
-    <h2>Ao vivo</h2>
-    <canvas id="chart" aria-label="Gráfico de potência e batimentos"></canvas>
-    <div class="legend"><span><i style="background:var(--accent)"></i>Potência (W)</span><span><i style="background:var(--hr)"></i>Batimentos (bpm)</span></div>
-    <div class="zonebar" id="zonebar"></div>
-    <div class="cfg" style="margin-top:14px">
-      <label for="cfgAge">Idade <input type="number" id="cfgAge" min="10" max="90" value="35"></label>
-      <label for="cfgMax">FC máxima <input type="number" id="cfgMax" min="120" max="230" value="185"></label>
-      <label for="cfgEff">Eficiência (%) <input type="number" id="cfgEff" min="15" max="35" value="24"></label>
+    <section class="metrics secondary" aria-label="Outras métricas">
+      <div class="metric"><div class="k">Tempo</div><div><span class="v" id="mTime">00:00</span></div></div>
+      <div class="metric"><div class="k">Calorias</div><div><span class="v" id="mKcal">0</span><span class="u">kcal</span></div></div>
+      <div class="metric"><div class="k">Distância</div><div><span class="v" id="mDist">0,00</span><span class="u">km</span></div></div>
+      <div class="metric"><div class="k">Velocidade</div><div><span class="v" id="mSpd">--</span><span class="u">km/h</span></div></div>
+      <div class="metric"><div class="k">Resistência</div><div><span class="v" id="mRes">--</span><span class="u">nível</span></div></div>
+    </section>
+
+    <section class="panel" aria-label="Gráfico e zonas">
+      <h2>Ao vivo</h2>
+      <canvas id="chart" aria-label="Gráfico de potência e batimentos"></canvas>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Potência (W)</span><span><i style="background:var(--hr)"></i>Batimentos (bpm)</span></div>
+      <div class="zonebar" id="zonebar"></div>
+    </section>
+
+    <section class="panel" aria-label="Configuração">
+      <h2>Configuração</h2>
+      <div class="cfg">
+        <label for="cfgAge">Idade <input type="number" id="cfgAge" min="10" max="90" value="35"></label>
+        <label for="cfgMax">FC máxima <input type="number" id="cfgMax" min="120" max="230" value="185"></label>
+        <label for="cfgEff">Eficiência (%) <input type="number" id="cfgEff" min="15" max="35" value="24"></label>
+      </div>
+      <p class="hint" style="margin-top:8px">A FC máxima é preenchida com 220 menos a idade quando você muda a idade. Se você conhece a sua, digite direto. As zonas usam 60, 70, 80 e 90% dela. As calorias vêm da potência: kJ divididos pela eficiência e por 4,184.</p>
+    </section>
+
+    <section class="panel" aria-label="Histórico de treinos">
+      <h2>Histórico</h2>
+      <div id="history"></div>
+      <div id="exportBox" hidden style="margin-top:12px">
+        <p class="hint" style="margin-bottom:6px">Se o download não começar, copie o texto abaixo e salve como arquivo .tcx.</p>
+        <textarea id="exportTxt" readonly></textarea>
+      </div>
+      <p class="hint" style="margin-top:12px">O histórico fica guardado neste aparelho. O arquivo TCX pode ser enviado para o Strava e outros serviços de treino.</p>
+    </section>
+
+    <div class="dock" role="group" aria-label="Controle do treino">
+      <button id="btnStart" type="button">Iniciar treino</button>
+      <button id="btnPause" type="button" class="ghost" disabled>Pausar</button>
+      <button id="btnFinish" type="button" class="danger" disabled>Finalizar</button>
     </div>
-    <p class="hint" style="margin-top:8px">A FC máxima é preenchida com 220 menos a idade quando você muda a idade. Se você conhece a sua, digite direto. As zonas usam 60, 70, 80 e 90% dela. As calorias vêm da potência: kJ divididos pela eficiência e por 4,184.</p>
   </section>
-
-  <section class="panel" aria-label="Histórico de treinos">
-    <h2>Histórico</h2>
-    <div id="history"></div>
-    <div id="exportBox" hidden style="margin-top:12px">
-      <p class="hint" style="margin-bottom:6px">Se o download não começar, copie o texto abaixo e salve como arquivo .tcx.</p>
-      <textarea id="exportTxt" readonly></textarea>
-    </div>
-    <p class="hint" style="margin-top:12px">O histórico fica guardado neste navegador, neste aparelho. O arquivo TCX pode ser enviado para o Strava e outros serviços de treino.</p>
-  </section>
-
 </main>
 
 <script>
@@ -363,7 +403,21 @@ textarea { width: 100%; height: 90px; font: 400 12px var(--font-mono); backgroun
     else showWarn(`Não foi possível conectar: ${err && err.message}. Confira se o dispositivo está ligado, perto do aparelho e livre de outros aplicativos como o MyWoosh.`);
   }
   function showWarn(t) { $('avisoTxt').textContent = t; $('aviso').hidden = false; }
-  function setState(id, on, txt) { const el = $(id); el.textContent = txt || (on ? 'conectada' : 'desconectada'); el.classList.toggle('on', on); }
+  const conn = { stBike: false, stHr: false };
+  const CHIP = { stBike: 'chipBike', stHr: 'chipHr' };
+  function setState(id, on, txt) {
+    const el = $(id); el.textContent = txt || (on ? 'conectada' : 'desconectada'); el.classList.toggle('on', on);
+    conn[id] = on; $(CHIP[id]).classList.toggle('on', on);
+    $('btnGo').classList.toggle('ghost', !(conn.stBike || conn.stHr));
+    if (conn.stBike && conn.stHr) showView('treino');
+    else if (on) $('goHint').textContent = 'Conectado. Conecte o outro dispositivo ou toque em Ir para o treino.';
+  }
+  function showView(name) {
+    $('viewConectar').hidden = name !== 'conectar';
+    $('viewTreino').hidden = name !== 'treino';
+    window.scrollTo(0, 0);
+    render(); draw();
+  }
 
   // ---------- treino ----------
   function setRec() {
@@ -448,6 +502,10 @@ textarea { width: 100%; height: 90px; font: 400 12px var(--font-mono); backgroun
   $('cfgMax').addEventListener('input', () => { labelZones(); saveCfg(); render(); });
   $('cfgEff').addEventListener('input', () => { saveCfg(); render(); });
 
+  $('btnGo').addEventListener('click', () => showView('treino'));
+  $('btnDev').addEventListener('click', () => showView('conectar'));
+  $('chipBike').addEventListener('click', () => showView('conectar'));
+  $('chipHr').addEventListener('click', () => showView('conectar'));
   $('btnBike').addEventListener('click', connectBike);
   $('btnHr').addEventListener('click', connectHr);
   window.addEventListener('resize', draw);

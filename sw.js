@@ -1,6 +1,6 @@
 // Service worker do Painel Spinning: deixa o app abrir sem internet.
 // Ao mudar qualquer arquivo do app, aumente o número da versão abaixo.
-const VERSAO = 'spinning-v1';
+const VERSAO = 'spinning-v2';
 const ARQUIVOS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 const HOSTS_FONTES = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
