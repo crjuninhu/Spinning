@@ -35,12 +35,18 @@
   --z1: #7fa0b8; --z2: #52c48a; --z3: #e0b43a; --z4: #f08a45; --z5: #ff5f5f; color-scheme: dark;
 }
 * { box-sizing: border-box; }
+/* Sem seleção de texto nem menu de toque longo; só os campos de digitação e o texto do TCX continuam selecionáveis */
+html { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+body { -webkit-user-select: none; user-select: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+canvas, button { touch-action: manipulation; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; padding-inline: 16px; padding-block: 20px 40px; }
 main { max-width: 880px; margin: 0 auto; display: grid; gap: 16px; }
 h1 { font: 700 28px/1.1 var(--font-display); letter-spacing: .01em; margin: 0; }
 h2 { font: 600 13px/1 var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
 header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
 .sub { color: var(--muted); margin: 4px 0 0; }
+h1.titulo { font-size: clamp(36px, 11vw, 56px); line-height: 1.05; text-wrap: balance; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
 .devices { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
 .dev { display: flex; flex-direction: column; gap: 8px; }
@@ -122,8 +128,7 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
   <section id="viewConectar" class="view">
     <header>
       <div>
-        <h1>Painel Spinning</h1>
-        <p class="sub">Bicicleta Gallant Connect Max e cinta cardíaca, direto pelo Bluetooth.</p>
+        <h1 class="titulo">Treino de Spinning</h1>
       </div>
     </header>
 
@@ -502,6 +507,8 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
   $('cfgMax').addEventListener('input', () => { labelZones(); saveCfg(); render(); });
   $('cfgEff').addEventListener('input', () => { saveCfg(); render(); });
 
+  document.addEventListener('contextmenu', e => { if (!e.target.closest('input, textarea')) e.preventDefault(); });
+  document.addEventListener('selectstart', e => { if (!e.target.closest || !e.target.closest('input, textarea')) e.preventDefault(); });
   $('btnGo').addEventListener('click', () => showView('treino'));
   $('btnDev').addEventListener('click', () => showView('conectar'));
   $('chipBike').addEventListener('click', () => showView('conectar'));
