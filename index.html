@@ -120,6 +120,31 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
 #viewTreino { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; gap: 8px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--panel); border-top: 1px solid var(--line); }
 .dock button { flex: 1 1 0; min-width: 0; padding-inline: 8px; }
+
+.zone .bar { display: block; }
+.zone .t { margin-top: 4px; }
+.metrics.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.metrics.grid2 .metric { padding: 12px 14px 14px; }
+.metrics.grid2 .metric .k { font-size: 12px; }
+.metrics.grid2 .metric .v { font-size: 68px; line-height: 1; margin-top: 4px; }
+.metrics.grid2 .metric .u { font-size: 14px; margin-left: 4px; }
+.metrics.grid2 .metric.sm .v { font-size: 46px; }
+@media (min-width: 640px) {
+  .metrics.grid2 .metric .v { font-size: 92px; }
+  .metrics.grid2 .metric.sm .v { font-size: 60px; }
+}
+h1.titulo.hist { font-size: clamp(30px, 9vw, 44px); }
+.sess textarea { height: 110px; }
+
+.sess { gap: 0; padding: 4px 12px; }
+.sess-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; padding: 6px 0; background: transparent; border: 0; border-radius: 6px; color: var(--ink); text-align: left; letter-spacing: 0; }
+.sh-text { display: grid; gap: 1px; min-width: 0; }
+.sh-date { font: 600 17px var(--font-display); }
+.sh-sum { font: 400 13px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.chev { width: 10px; height: 10px; flex: none; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin-right: 4px; transition: transform .2s; }
+.sess.open .chev { transform: rotate(-135deg); }
+.sess-body { display: grid; gap: 10px; padding: 4px 0 10px; border-top: 1px solid var(--line); margin-top: 2px; padding-top: 12px; }
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
 </style>
 
 </head>
@@ -151,6 +176,16 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
       </div>
     </section>
 
+    <section class="panel" aria-label="Configuração">
+      <h2>Configuração</h2>
+      <div class="cfg">
+        <label for="cfgAge">Idade <input type="number" id="cfgAge" min="10" max="90" value="35" inputmode="numeric"></label>
+        <label for="cfgMax">FC máxima <input type="number" id="cfgMax" min="120" max="230" value="185" inputmode="numeric"></label>
+        <label for="cfgEff">Eficiência (%) <input type="number" id="cfgEff" min="15" max="35" value="24" inputmode="numeric"></label>
+      </div>
+      <p class="hint" style="margin-top:8px">A FC máxima é preenchida com 220 menos a idade quando você muda a idade. Se você conhece a sua, digite direto. As zonas usam 60, 70, 80 e 90% dela. As calorias vêm da potência: kJ divididos pela eficiência e por 4,184.</p>
+    </section>
+
     <button id="btnGo" type="button" class="wide ghost">Ir para o treino</button>
     <p class="hint" id="goHint">Conecte a bicicleta e a cinta. Quando as duas estiverem conectadas, o painel abre sozinho.</p>
   </section>
@@ -163,18 +198,15 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
       <span class="rec" id="recState">Parado</span>
     </div>
 
-    <section class="metrics primary" aria-label="Métricas principais">
+    <section class="metrics grid2" aria-label="Métricas">
       <div class="metric main"><div class="k">Potência</div><div><span class="v" id="mPower">--</span><span class="u">W</span></div></div>
       <div class="metric"><div class="k">Cadência</div><div><span class="v" id="mCad">--</span><span class="u">rpm</span></div></div>
       <div class="metric hr"><div class="k">Batimentos</div><div><span class="v" id="mHr">--</span><span class="u">bpm</span></div></div>
-    </section>
-
-    <section class="metrics secondary" aria-label="Outras métricas">
-      <div class="metric"><div class="k">Tempo</div><div><span class="v" id="mTime">00:00</span></div></div>
-      <div class="metric"><div class="k">Calorias</div><div><span class="v" id="mKcal">0</span><span class="u">kcal</span></div></div>
-      <div class="metric"><div class="k">Distância</div><div><span class="v" id="mDist">0,00</span><span class="u">km</span></div></div>
-      <div class="metric"><div class="k">Velocidade</div><div><span class="v" id="mSpd">--</span><span class="u">km/h</span></div></div>
       <div class="metric"><div class="k">Resistência</div><div><span class="v" id="mRes">--</span><span class="u">nível</span></div></div>
+      <div class="metric sm"><div class="k">Tempo</div><div><span class="v" id="mTime">00:00</span></div></div>
+      <div class="metric sm"><div class="k">Calorias</div><div><span class="v" id="mKcal">0</span><span class="u">kcal</span></div></div>
+      <div class="metric sm"><div class="k">Distância</div><div><span class="v" id="mDist">0,00</span><span class="u">km</span></div></div>
+      <div class="metric sm"><div class="k">Velocidade</div><div><span class="v" id="mSpd">--</span><span class="u">km/h</span></div></div>
     </section>
 
     <section class="panel" aria-label="Gráfico e zonas">
@@ -184,31 +216,22 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
       <div class="zonebar" id="zonebar"></div>
     </section>
 
-    <section class="panel" aria-label="Configuração">
-      <h2>Configuração</h2>
-      <div class="cfg">
-        <label for="cfgAge">Idade <input type="number" id="cfgAge" min="10" max="90" value="35"></label>
-        <label for="cfgMax">FC máxima <input type="number" id="cfgMax" min="120" max="230" value="185"></label>
-        <label for="cfgEff">Eficiência (%) <input type="number" id="cfgEff" min="15" max="35" value="24"></label>
-      </div>
-      <p class="hint" style="margin-top:8px">A FC máxima é preenchida com 220 menos a idade quando você muda a idade. Se você conhece a sua, digite direto. As zonas usam 60, 70, 80 e 90% dela. As calorias vêm da potência: kJ divididos pela eficiência e por 4,184.</p>
-    </section>
-
-    <section class="panel" aria-label="Histórico de treinos">
-      <h2>Histórico</h2>
-      <div id="history"></div>
-      <div id="exportBox" hidden style="margin-top:12px">
-        <p class="hint" style="margin-bottom:6px">Se o download não começar, copie o texto abaixo e salve como arquivo .tcx.</p>
-        <textarea id="exportTxt" readonly></textarea>
-      </div>
-      <p class="hint" style="margin-top:12px">O histórico fica guardado neste aparelho. O arquivo TCX pode ser enviado para o Strava e outros serviços de treino.</p>
-    </section>
+    <button id="btnHist" type="button" class="wide ghost">Histórico de treinos</button>
 
     <div class="dock" role="group" aria-label="Controle do treino">
       <button id="btnStart" type="button">Iniciar treino</button>
       <button id="btnPause" type="button" class="ghost" disabled>Pausar</button>
       <button id="btnFinish" type="button" class="danger" disabled>Finalizar</button>
     </div>
+  </section>
+
+  <section id="viewHist" class="view" hidden>
+    <div class="topbar">
+      <button type="button" class="ghost small" id="btnBackHist">Voltar</button>
+    </div>
+    <h1 class="titulo hist">Histórico</h1>
+    <div id="history"></div>
+    <p class="hint">O histórico fica guardado neste aparelho. O arquivo TCX pode ser enviado para o Strava e outros serviços de treino.</p>
   </section>
 </main>
 
@@ -269,6 +292,7 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
   }
   function renderZones() {
     const cur = live.hr ? zoneOf(live.hr) : -1;
+    $('mHr').style.color = cur >= 0 ? `var(${ZCOL[cur]})` : '';
     const tot = R.zsec.reduce((a, b) => a + b, 0);
     for (let i = 0; i < 5; i++) {
       const el = $('z' + i);
@@ -420,6 +444,8 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
   function showView(name) {
     $('viewConectar').hidden = name !== 'conectar';
     $('viewTreino').hidden = name !== 'treino';
+    $('viewHist').hidden = name !== 'hist';
+    if (name === 'hist') renderHistory();
     window.scrollTo(0, 0);
     render(); draw();
   }
@@ -458,24 +484,42 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
   function renderHistory() {
     const box = $('history'); box.textContent = '';
     const list = store.get('treinos', []);
-    if (!list.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = 'Nenhum treino salvo ainda. Inicie um treino, pedale e toque em Finalizar e salvar.'; box.appendChild(p); return; }
+    if (!list.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = 'Nenhum treino salvo ainda. Inicie um treino, pedale e toque em Finalizar.'; box.appendChild(p); return; }
     list.forEach(s => {
       const d = document.createElement('div'); d.className = 'sess';
       const tot = s.zones.reduce((a, b) => a + b, 0) || 1;
       const zm = s.zones.map((z, i) => `<span style="width:${z / tot * 100}%;background:var(${ZCOL[i]})"></span>`).join('');
-      d.innerHTML = `<h3></h3>
-        <div class="stats">
-          <div><b>${mmss(s.dur)}</b>duração</div><div><b>${s.kcal}</b>kcal</div><div><b>${(s.dist / 1000).toFixed(2).replace('.', ',')}</b>km</div>
-          <div><b>${s.avgP}</b>W médios</div><div><b>${s.maxP}</b>W máximo</div><div><b>${s.avgC}</b>rpm médio</div>
-          <div><b>${s.avgH || '--'}</b>bpm médio</div><div><b>${s.maxH || '--'}</b>bpm máximo</div>
-        </div>
-        <div class="zmini" title="Tempo em cada zona de batimento">${zm}</div>
-        <div class="actions"></div>`;
-      d.querySelector('h3').textContent = dstr(s.start);
+      const resumo = [mmss(s.dur), s.kcal + ' kcal', s.avgP + ' W'].concat(s.avgH ? [s.avgH + ' bpm'] : []).join(' · ');
+      d.innerHTML = `<button type="button" class="sess-head" aria-expanded="false">
+          <span class="sh-text"><span class="sh-date"></span><span class="sh-sum">${resumo}</span></span>
+          <span class="chev" aria-hidden="true"></span>
+        </button>
+        <div class="sess-body" hidden>
+          <div class="stats">
+            <div><b>${mmss(s.dur)}</b>duração</div><div><b>${s.kcal}</b>kcal</div><div><b>${(s.dist / 1000).toFixed(2).replace('.', ',')}</b>km</div>
+            <div><b>${s.avgP}</b>W médios</div><div><b>${s.maxP}</b>W máximo</div><div><b>${s.avgC}</b>rpm médio</div>
+            <div><b>${s.avgH || '--'}</b>bpm médio</div><div><b>${s.maxH || '--'}</b>bpm máximo</div>
+          </div>
+          <div class="zmini" title="Tempo em cada zona de batimento">${zm}</div>
+          <div class="actions"></div>
+        </div>`;
+      d.querySelector('.sh-date').textContent = dstr(s.start);
+      const head = d.querySelector('.sess-head'), body = d.querySelector('.sess-body');
+      head.addEventListener('click', () => {
+        const open = body.hidden;
+        body.hidden = !open; d.classList.toggle('open', open); head.setAttribute('aria-expanded', String(open));
+      });
       const act = d.querySelector('.actions');
-      const mk = (t, cls, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'small ' + cls; b.textContent = t; b.addEventListener('click', fn); act.appendChild(b); };
-      if (s.samples && s.samples.length) { mk('Baixar TCX', 'ghost', () => exportTcx(s, true)); mk('Mostrar TCX', 'ghost', () => exportTcx(s, false)); }
-      mk('Apagar', 'danger', () => { store.set('treinos', store.get('treinos', []).filter(x => x.id !== s.id)); renderHistory(); });
+      const mk = (t, cls, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'small ' + cls; b.textContent = t; b.addEventListener('click', () => fn(b, d)); act.appendChild(b); };
+      if (s.samples && s.samples.length) {
+        mk('Baixar TCX', 'ghost', () => downloadTcx(s));
+        mk('Copiar TCX', 'ghost', (b, card) => copyTcx(s, b, card));
+      }
+      mk('Apagar', 'danger', (b) => {
+        if (b.dataset.sure) { store.set('treinos', store.get('treinos', []).filter(x => x.id !== s.id)); renderHistory(); return; }
+        b.dataset.sure = '1'; b.textContent = 'Confirmar';
+        setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = 'Apagar'; } }, 3000);
+      });
       box.appendChild(d);
     });
   }
@@ -485,21 +529,26 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
     const pts = s.samples.map((p, i) => `<Trackpoint><Time>${iso(t0 + i * 1000)}</Time><DistanceMeters>${p[3]}</DistanceMeters>${p[2] ? `<HeartRateBpm><Value>${p[2]}</Value></HeartRateBpm>` : ''}<Cadence>${Math.round(p[1])}</Cadence><Extensions><ns3:TPX><ns3:Watts>${p[0]}</ns3:Watts></ns3:TPX></Extensions></Trackpoint>`).join('');
     return `<?xml version="1.0" encoding="UTF-8"?>\n<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2"><Activities><Activity Sport="Biking"><Id>${iso(t0)}</Id><Lap StartTime="${iso(t0)}"><TotalTimeSeconds>${s.dur}</TotalTimeSeconds><DistanceMeters>${s.dist}</DistanceMeters><Calories>${s.kcal}</Calories><Intensity>Active</Intensity><TriggerMethod>Manual</TriggerMethod><Track>${pts}</Track></Lap></Activity></Activities></TrainingCenterDatabase>`;
   }
-  function exportTcx(s, download) {
-    const xml = tcx(s), box = $('exportBox'), ta = $('exportTxt');
-    ta.value = xml;
-    if (download) {
-      try {
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([xml], { type: 'application/vnd.garmin.tcx+xml' }));
-        a.download = 'spinning-' + new Date(s.start).toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.tcx';
-        document.body.appendChild(a); a.click(); a.remove();
-      } catch (e) { /* o texto abaixo serve de plano B */ }
-    }
-    box.hidden = false; ta.focus(); ta.select();
-    try { navigator.clipboard.writeText(xml).catch(() => {}); } catch (e) {}
+  function downloadTcx(s) {
+    try {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([tcx(s)], { type: 'application/vnd.garmin.tcx+xml' }));
+      a.download = 'spinning-' + new Date(s.start).toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.tcx';
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch (e) { log('Falha ao baixar: ' + e.message); }
+  }
+  function copyTcx(s, btn, card) {
+    const xml = tcx(s);
+    const fallback = () => {
+      let ta = card.querySelector('textarea');
+      if (!ta) { ta = document.createElement('textarea'); ta.readOnly = true; card.appendChild(ta); }
+      ta.value = xml; ta.focus(); ta.select();
+      btn.textContent = 'Texto aberto abaixo';
+    };
+    try {
+      navigator.clipboard.writeText(xml).then(() => { btn.textContent = 'Copiado'; setTimeout(() => { btn.textContent = 'Copiar TCX'; }, 2000); }, fallback);
+    } catch (e) { fallback(); }
   }
 
-  // ---------- configurações ----------
   const cfg = store.get('cfg', null);
   if (cfg) { $('cfgAge').value = cfg.age; $('cfgMax').value = cfg.max; $('cfgEff').value = cfg.eff; }
   const saveCfg = () => store.set('cfg', { age: +$('cfgAge').value, max: +$('cfgMax').value, eff: +$('cfgEff').value });
@@ -510,6 +559,8 @@ button.wide { width: 100%; min-height: 48px; font-size: 17px; }
   document.addEventListener('contextmenu', e => { if (!e.target.closest('input, textarea')) e.preventDefault(); });
   document.addEventListener('selectstart', e => { if (!e.target.closest || !e.target.closest('input, textarea')) e.preventDefault(); });
   $('btnGo').addEventListener('click', () => showView('treino'));
+  $('btnHist').addEventListener('click', () => showView('hist'));
+  $('btnBackHist').addEventListener('click', () => showView('treino'));
   $('btnDev').addEventListener('click', () => showView('conectar'));
   $('chipBike').addEventListener('click', () => showView('conectar'));
   $('chipHr').addEventListener('click', () => showView('conectar'));
